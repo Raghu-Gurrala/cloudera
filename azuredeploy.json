@@ -1,0 +1,265 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "User name for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "availabilitySetName":{
+      "type": "string",
+      "defaultValue": "defaultAS",
+      "metadata": {
+        "description": "Name of the Availability Set."
+      }
+    },
+    "virtualMachineSize":{
+      "type": "string",
+      "defaultValue": "Standard_DS14",
+      "metadata": {
+        "description": "Size of the Virtual Machines."
+      }
+    },
+    "storageAccountType":{
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "Type of the Storage."
+      }
+    },
+    "virtualMachineCount":{
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The number of Virtual Machines."
+      }
+    },
+    "networkSecurityGroupResourceGroupName":{
+      "type": "string",
+      "defaultValue": "addNodeRG",
+      "metadata": {
+        "description": "Resource Group Name of the Network Security Group."
+      }
+    },
+    "networkSecurityGroupName":{
+      "type": "string",
+      "defaultValue": "workerNSG",
+      "metadata": {
+        "description": "Name of the Network Security Group."
+      }
+    },
+    "virtualNetworkResourceGroupName":{
+      "type": "string",
+      "defaultValue": "addNodeRG",
+      "metadata": {
+        "description": "Resource Group Name of the Network Security Group."
+      }
+    },
+    "virtualNetworkName":{
+      "type": "string",
+      "defaultValue": "workerVN",
+      "metadata": {
+        "description": "Name of the Network Security Group."
+      }
+    },
+    "subnetName":{
+      "type": "string",
+      "defaultValue": "default",
+      "metadata": {
+        "description": "Name of the Network Security Group."
+      }
+    },
+    "dnsLabelPrefix": {
+      "type": "string",
+      "defaultValue": "batch-x",
+      "metadata": {
+        "description": "Unique Prefix to Be Used with CopyIndex to Construct the Name for the Virtual Machine. The Prefix Must Be Different Per Deployment."
+      }
+    },
+    "dnsLabelSuffix": {
+      "type": "string",
+      "defaultValue": "cdh-cluster.internal",
+      "metadata": {
+        "description": "FQDN suffix for the Virtual Machine."
+      }
+    }
+  },
+  "variables": {
+    "asName": "[parameters('availabilitySetName')]",
+    "resourceSeed": "[uniquestring(concat(resourceGroup().id, parameters('dnsLabelPrefix')))]",
+    "imagePublisher": "cloudera",
+    "imageOffer": "cloudera-centos-6",
+    "imageSku": "CLOUDERA-CENTOS-6",
+    "OSDiskName": "osdisk",
+    "vmStorageAccountContainerName": "vhds",
+    "vnetID": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
+    "scriptsUri": "scriptsUri_REPLACE_ME"
+  },
+  "resources": [
+   {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')]",
+      "apiVersion": "2016-05-01",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "storageAccountLoop",
+        "count": "[parameters('virtualMachineCount')]"
+      },
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'nic')]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "dataNodeNicLoop",
+        "count": "[parameters('virtualMachineCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId(parameters('networkSecurityGroupResourceGroupName'), 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(parameters('dnsLabelPrefix'), '-', copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "cloudera-centos-6",
+        "publisher": "cloudera",
+        "product": "cloudera-centos-6"
+      },
+      "copy": {
+        "name": "dataNodeLoop",
+        "count": "[parameters('virtualMachineCount')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'nic'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('asName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('virtualMachineSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('dnsLabelPrefix'), '-', copyIndex(), '.', parameters('dnsLabelSuffix'))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSku')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "500",
+              "lun": 0,
+              "vhd": {
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk1.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+             {
+              "name": "datadisk2",
+              "diskSizeGB": "500",
+              "lun": 1,
+              "vhd": {
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk2.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+             {
+              "name": "datadisk3",
+              "diskSizeGB": "500",
+              "lun": 2,
+              "vhd": {
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk3.vhd')]"
+              },
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'nic'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(concat(parameters('dnsLabelPrefix'), '-', copyIndex()), '/bootstrap')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "dataNodeExeLoop",
+        "count": "[parameters('virtualMachineCount')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', concat(parameters('dnsLabelPrefix'), '-', copyIndex()))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[concat(variables('scriptsUri'), '/scripts/prepare-datanode-disks.sh')]",
+            "[concat(variables('scriptsUri'), '/scripts/initialize-node.sh')]"
+          ],
+          "commandToExecute": "[concat('sh initialize-node.sh \"', parameters('adminUsername'),'\" >> /var/log/cloudera-azure-add-node-initialize.log 2>&1')]"
+        }
+      }
+    }
+  ]
+}
