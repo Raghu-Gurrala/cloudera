@@ -842,7 +842,7 @@
       </tr>
       <tr>
         <td id="L110" class="blob-num js-line-number" data-line-number="110"></td>
-        <td id="LC110" class="blob-code blob-code-inner js-file-line">    <span class="pl-s"><span class="pl-pds">&quot;</span>scriptsUri<span class="pl-pds">&quot;</span></span>: <span class="pl-s"><span class="pl-pds">&quot;</span>https://raw.githubusercontent.com/netwmr01/azure-quickstart-templates/test-bed/101-vm-simple-linux<span class="pl-pds">&quot;</span></span></td>
+        <td id="LC110" class="blob-code blob-code-inner js-file-line">    <span class="pl-s"><span class="pl-pds">&quot;</span>scriptsUri<span class="pl-pds">&quot;</span></span>: <span class="pl-s"><span class="pl-pds">&quot;</span>https://github.com/Raghu-Gurrala/cloudera.git<span class="pl-pds">&quot;</span></span></td>
       </tr>
       <tr>
         <td id="L111" class="blob-num js-line-number" data-line-number="111"></td>
