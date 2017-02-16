@@ -107,7 +107,7 @@
     "vmStorageAccountContainerName": "vhds",
     "vnetID": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
-    "scriptsUri": "scriptsUri_REPLACE_ME"
+    "scriptsUri": "https://github.com/Raghu-Gurrala/cloudera.git"
   },
   "resources": [
    {
@@ -191,7 +191,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -199,28 +199,55 @@
           "dataDisks": [
             {
               "name": "datadisk1",
-              "diskSizeGB": "500",
+              "diskSizeGB": "1023",
               "lun": 0,
               "vhd": {
-                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk1.vhd')]"
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk1.vhd')]"
               },
               "createOption": "Empty"
             },
              {
               "name": "datadisk2",
-              "diskSizeGB": "500",
+              "diskSizeGB": "1023",
               "lun": 1,
               "vhd": {
-                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk2.vhd')]"
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk2.vhd')]"
               },
               "createOption": "Empty"
             },
              {
               "name": "datadisk3",
-              "diskSizeGB": "500",
+              "diskSizeGB": "1023",
               "lun": 2,
               "vhd": {
-                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2016-01-01').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk3.vhd')]"
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk3.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk4",
+              "diskSizeGB": "1023",
+              "lun": 3,
+              "vhd": {
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk4.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk5",
+              "diskSizeGB": "1023",
+              "lun": 4,
+              "vhd": {
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','datadisk5.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "logs",
+              "diskSizeGB": "500",
+              "lun": 5,
+              "vhd": {
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', concat(uniquestring(concat(copyIndex(), variables('resourceSeed'))), 'sa')), '2017-02-16').primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/','logs.vhd')]"
               },
               "createOption": "Empty"
             }
