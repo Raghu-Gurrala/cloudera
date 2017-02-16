@@ -2,41 +2,44 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+     "adminUsername": {
+      "value": "jgadmin"
+    },
     "adminPassword": {
-      "value": "GEN-PASSWORD"
+      "value": "Welcome_123"
     },
     "availabilitySetName": {
-      "value": "clusterAS_v2"
+      "value": "ANALYTICSDATANODES"
     },
     "virtualMachineSize": {
-      "value": "Standard_DS14_v2"
+      "value": "Standard_DS13_v2"
     },
     "storageAccountType": {
-      "value": "Standard_LRS"
+      "value": "Premium_LRS"
     },
     "virtualMachineCount": {
-      "value": 1
+      "value": 2
     },
     "networkSecurityGroupResourceGroupName": {
-      "value": "addNodeRG"
+      "value": "JGAInfrastructure"
     },
     "networkSecurityGroupName": {
-      "value": "clusterNSG"
+      "value": "TrustedNSG"
     },
     "virtualNetworkResourceGroupName": {
-      "value": "addNodeRG"
+      "value": "JoyGlobalAnalytics"
     },
     "virtualNetworkName": {
-      "value": "clusterVN"
+      "value": "AnalyticsNetwork"
     },
     "subnetName": {
-      "value": "default"
+      "value": "AnalyticsPrivate"
     },
     "dnsLabelPrefix": {
-      "value": "batch-1"
+      "value": "mercury-5"
     },
     "dnsLabelSuffix": {
-      "value": "cdh-cluster.internal"
+      "value": "jganalytics.local"
     }
   }
 }
