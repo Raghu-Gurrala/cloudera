@@ -1,0 +1,8 @@
+{
+  "itemDisplayName": "Deploy VMs",
+  "icon": "Centos",
+  "description": "This template allows you to deploy VMs using a few different options.",
+  "summary": "This template takes a minimum amount of parameters and deploys Linux VMs.",
+  "githubUsername": "netwmr01",
+  "dateUpdated": "2016-11-29"
+}

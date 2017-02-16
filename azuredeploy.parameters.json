@@ -1,0 +1,42 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "availabilitySetName": {
+      "value": "clusterAS_v2"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_DS14_v2"
+    },
+    "storageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "virtualMachineCount": {
+      "value": 1
+    },
+    "networkSecurityGroupResourceGroupName": {
+      "value": "addNodeRG"
+    },
+    "networkSecurityGroupName": {
+      "value": "clusterNSG"
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": "addNodeRG"
+    },
+    "virtualNetworkName": {
+      "value": "clusterVN"
+    },
+    "subnetName": {
+      "value": "default"
+    },
+    "dnsLabelPrefix": {
+      "value": "batch-1"
+    },
+    "dnsLabelSuffix": {
+      "value": "cdh-cluster.internal"
+    }
+  }
+}
